@@ -11,17 +11,15 @@
   - [Platform](overview/platform.md)
   - [Development Choices](overview/development_choices.md)
 
-- [Design]()
+- [Design](design/design.md)
 
-  - [Mechanics]()
-
-  - [World]()
-  - [Progression]()
+  - [World](design/world.md)
+  - [Mechanics](design/mechanics.md)
+  - [Progression](design/progression.md)
 
   - [Art]()
   - [Audio]()
   - [UI]()
-  - [Controls]()
   - [Monetization]()
 
 - [Development]()
