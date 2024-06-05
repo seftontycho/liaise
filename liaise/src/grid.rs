@@ -57,37 +57,86 @@ pub fn create_grid(
         tile_size,
     } = *res;
 
+    for row in 0..grid_height {
+        for col in 0..grid_width {
+            create_grid_tile_at(
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+                tile_size,
+                Position::new(col as i32, row as i32),
+            )
+        }
+    }
+}
+
+#[derive(Component)]
+struct GridTile;
+
+pub fn create_grid_tile_at(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+    tile_size: f32,
+    position: Position,
+) {
     let white = materials.add(Color::WHITE);
 
-    let mut lines = Vec::new();
+    let half_size = tile_size / 2.0;
 
-    for row in 0..=grid_height {
-        let y = row as f32 * tile_size;
+    let lines = LineList {
+        lines: vec![
+            (
+                Vec3::new(-half_size, -half_size, 0.0),
+                Vec3::new(half_size, -half_size, 0.0),
+            ),
+            (
+                Vec3::new(half_size, -half_size, 0.0),
+                Vec3::new(half_size, half_size, 0.0),
+            ),
+            (
+                Vec3::new(half_size, half_size, 0.0),
+                Vec3::new(-half_size, half_size, 0.0),
+            ),
+            (
+                Vec3::new(-half_size, half_size, 0.0),
+                Vec3::new(-half_size, -half_size, 0.0),
+            ),
+        ],
+    };
 
-        lines.push((
-            Vec3::new(0.0, y, 0.0),
-            Vec3::new(grid_width as f32 * tile_size, y, 0.0),
-        ));
-    }
+    let mesh = meshes.add(lines);
 
-    for col in 0..=grid_width {
-        let x = col as f32 * tile_size;
-
-        lines.push((
-            Vec3::new(x, 0.0, 0.0),
-            Vec3::new(x, grid_height as f32 * tile_size, 0.0),
-        ));
-    }
-
-    let mesh = meshes.add(LineList { lines });
+    let abs_position = position.to_vec3(tile_size);
 
     commands.spawn((
-        Grid,
+        GridTile,
+        position,
         MaterialMesh2dBundle {
             mesh: mesh.into(),
-            material: white.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            material: white,
+            transform: Transform::from_translation(abs_position),
             ..Default::default()
         },
     ));
+}
+
+#[derive(Component, PartialEq, Eq, Debug, Clone, Copy)]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Position {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+
+    pub fn to_vec3(&self, tile_size: f32) -> Vec3 {
+        Vec3::new(
+            self.x as f32 * tile_size + tile_size / 2.0,
+            self.y as f32 * tile_size + tile_size / 2.0,
+            0.0,
+        )
+    }
 }
